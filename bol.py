@@ -1,28 +1,32 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Bolão Copa 2026</title>
-    <style>
-        body { font-family: 'Arial', sans-serif; background: #1a1a1a; color: white; padding: 20px; }
-        .card { background: #2d2d2d; padding: 20px; border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 12px; border-bottom: 1px solid #444; text-align: left; }
-        h2 { color: #f1c40f; }
-        .pos-1 { color: gold; font-weight: bold; }
-        .pos-2 { color: silver; }
-        .pos-3 { color: #cd7f32; }
-    </style>
-</head>
-<body>
-    <div class="card">
-        <h2>🏆 Classificação Geral</h2>
-        <table>
-            <tr><th>Pos</th><th>Grupo</th><th>Pontos</th></tr>
-            <tr class="pos-1"><td>1º</td><td>Grupo 1 (Davi, Arthur, Victor, Kharla)</td><td>0</td></tr>
-            <tr class="pos-2"><td>2º</td><td>Grupo 2 (Renan, Fabio, Israel, Socorro)</td><td>0</td></tr>
-            <tr class="pos-3"><td>3º</td><td>Grupo 3 (Constantino, Juliane, Tino)</td><td>0</td></tr>
-        </table>
-    </div>
-</body>
-</html>
+import streamlit as st
+import pandas as pd
+
+st.set_page_config(page_title="Bolão da Família 2026", layout="wide")
+
+st.title("🏆 Bolão da Copa do Mundo 2026")
+
+# Exemplo de dados (você pode carregar isso de um arquivo CSV depois)
+dados = {
+    'Grupo': ['Grupo 1', 'Grupo 2', 'Grupo 3'],
+    'Participantes': ['Davi, Arthur, Victor, Kharla', 'Renan, Fabio, Israel, Socorro', 'Constantino, Juliane, Tino'],
+    'Pontos': [0, 0, 0]
+}
+
+df = pd.DataFrame(dados)
+
+st.subheader("Classificação Atual")
+st.table(df)
+
+st.divider()
+
+st.subheader("Registrar Palpite")
+with st.form("meu_palpite"):
+    nome = st.selectbox("Quem está palpitando?", ["Davi", "Arthur", "Victor", "Kharla", "Renan", "Fabio", "Israel", "Socorro", "Constantino", "Juliane", "Tino"])
+    jogo = st.text_input("Jogo (Ex: Brasil x Japão)")
+    placar = st.text_input("Placar (Ex: 2-1)")
+    submit = st.form_submit_button("Enviar Palpite")
+
+    if submit:
+        # AQUI VOCÊ PODE ADICIONAR A LÓGICA DE TEMPO
+        # Exemplo: Se (hora_atual - hora_jogo) > 30 min, não aceita.
+        st.success(f"Palpite de {nome} registrado para {jogo}!")
