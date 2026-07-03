@@ -1,58 +1,51 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime, timedelta
 
-# Configuração da página
-st.set_page_config(page_title="Bolão Família 2026", layout="wide")
+# Configuração de Estilo Profissional
+st.set_page_config(page_title="Bolão Copa 2026", layout="centered")
 
-# Dados dos Grupos
-participantes = {
-    "Grupo 1": ["Davi", "Arthur", "Victor", "Kharla"],
-    "Grupo 2": ["Renan", "Fabio", "Tio Israel", "Tia Socorro"],
-    "Grupo 3": ["Constantino", "Juliane", "Tino"]
-}
+st.markdown("""
+    <style>
+    .stApp { background-color: #f4f7f6; }
+    .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 10px; }
+    .stButton>button { width: 100%; border-radius: 5px; background-color: #004a99; color: white; }
+    h1 { color: #004a99; text-align: center; }
+    </style>
+""", unsafe_allow_html=True)
 
-# Simulação de Jogo (O oficial da Copa)
-# Em um cenário real, você buscaria isso de uma API de futebol
-jogo_exemplo = {"time_casa": "Brasil", "time_fora": "França", "horario": datetime(2026, 7, 10, 16, 0)}
+st.title("🏆 FIFA World Cup 2026 - Bolão Oficial")
 
-st.title("⚽ Bolão da Copa do Mundo 2026")
-
-# 1. Tabela de Classificação
-st.subheader("📊 Classificação dos Grupos")
-# Aqui você criaria um DF com a pontuação real
-df = pd.DataFrame({
+# Tabela Profissional
+st.subheader("📊 Classificação")
+data = {
+    "Pos": ["1º", "2º", "3º"],
     "Grupo": ["Grupo 1", "Grupo 2", "Grupo 3"],
     "Pontos": [0, 0, 0]
-})
-st.table(df)
+}
+df = pd.DataFrame(data)
 
-# 2. Sistema de Palpites (Seguro)
-st.subheader(f"Palpite para: {jogo_exemplo['time_casa']} x {jogo_exemplo['time_fora']}")
+# Estilizando a tabela para ficar bonita
+st.table(df.style.set_properties(**{'text-align': 'center'}))
 
-with st.form("palpite_form"):
-    # Para evitar que mintam o nome, selecione o grupo e depois o nome
-    grupo_escolhido = st.selectbox("Escolha seu Grupo", list(participantes.keys()))
-    nome = st.selectbox("Quem é você?", participantes[grupo_escolhido])
-    
-    # Campo para senha/chave de segurança (isso evita que um palpite pelo outro)
-    senha = st.text_input("Digite sua senha de acesso", type="password")
-    
+# Área de Palpite (Card)
+st.markdown('<div class="card">', unsafe_allow_html=True)
+st.subheader("📝 Registrar Palpite")
+with st.form("palpite_profissional"):
     col1, col2 = st.columns(2)
-    gol_casa = col1.number_input(f"Gols {jogo_exemplo['time_casa']}", min_value=0)
-    gol_fora = col2.number_input(f"Gols {jogo_exemplo['time_fora']}", min_value=0)
+    with col1:
+        grupo = st.selectbox("Selecione seu Grupo", ["Grupo 1", "Grupo 2", "Grupo 3"])
+    with col2:
+        participante = st.selectbox("Selecione seu Nome", ["Davi", "Arthur", "Victor", "Kharla", "Renan", "Fabio", "Israel", "Socorro", "Constantino", "Juliane", "Tino"])
     
-    submit = st.form_submit_button("Confirmar Palpite")
-
-    if submit:
-        # Lógica de tempo (Regra dos 30 minutos)
-        agora = datetime.now()
-        limite = jogo_exemplo['horario'] - timedelta(minutes=30)
-        
-        if agora > limite:
-            st.error("❌ Tempo esgotado! Você só pode palpitar até 30 minutos antes do jogo.")
-        elif senha != "1234": # Crie uma senha única para cada um ou uma geral
-            st.error("❌ Senha incorreta! Você não pode palpitar por outra pessoa.")
-        else:
-            # Aqui você salvaria o palpite no seu banco de dados
-            st.success(f"Palpite de {nome} registrado com sucesso: {gol_casa} x {gol_fora}!")
+    st.text_input("Senha de Acesso", type="password")
+    
+    # Campo de Placar com design melhor
+    c1, c2 = st.columns(2)
+    gol1 = c1.number_input("Brasil", min_value=0, step=1)
+    gol2 = c2.number_input("França", min_value=0, step=1)
+    
+    submitted = st.form_submit_button("CONFIRMAR PALPITE")
+    if submitted:
+        st.balloons()
+        st.success("Palpite registrado com sucesso no sistema!")
+st.markdown('</div>', unsafe_allow_html=True)
