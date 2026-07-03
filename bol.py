@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
+import os
 
-# Configuração Visual
+# Configuração da página
 st.set_page_config(page_title="Bolão Oficial 2026", layout="centered")
 
 st.markdown("""
@@ -11,7 +12,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Dicionário de Jogos Oficiais das Oitavas de Final (2026)
+# Dicionário de Jogos
 jogos_oficiais = {
     "1": {"time_casa": "Canadá", "time_fora": "Marrocos", "data": "04/07"},
     "2": {"time_casa": "Paraguai", "time_fora": "França", "data": "04/07"},
@@ -19,32 +20,41 @@ jogos_oficiais = {
     "4": {"time_casa": "México", "time_fora": "Inglaterra", "data": "05/07"}
 }
 
+# Função para salvar palpites
+def salvar_palpite(nome, grupo, jogo, g1, g2):
+    caminho = "palpites.csv"
+    dados = pd.DataFrame([[nome, grupo, jogo, g1, g2]], 
+                         columns=["Nome", "Grupo", "Jogo", "Gols_Casa", "Gols_Fora"])
+    if not os.path.isfile(caminho):
+        dados.to_csv(caminho, index=False)
+    else:
+        dados.to_csv(caminho, mode='a', header=False, index=False)
+
 st.title("⚽ Bolão Copa do Mundo 2026")
 
-# Seleção de Jogo
-st.subheader("🗓️ Próximas Partidas")
-jogo_id = st.selectbox("Escolha o jogo para palpitar:", 
-                       options=list(jogos_oficiais.keys()), 
+jogo_id = st.selectbox("Escolha o jogo:", options=list(jogos_oficiais.keys()), 
                        format_func=lambda x: f"{jogos_oficiais[x]['time_casa']} vs {jogos_oficiais[x]['time_fora']} ({jogos_oficiais[x]['data']})")
 
-jogo_selecionado = jogos_oficiais[jogo_id]
+jogo_sel = jogos_oficiais[jogo_id]
 
-# Formulário de Palpite
 with st.container():
     st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.subheader(f"Palpite: {jogo_selecionado['time_casa']} x {jogo_selecionado['time_fora']}")
-    
-    with st.form("palpite_form"):
+    with st.form("form_palpite"):
         grupo = st.selectbox("Seu Grupo", ["Grupo 1", "Grupo 2", "Grupo 3"])
         nome = st.selectbox("Seu Nome", ["Davi", "Arthur", "Victor", "Kharla", "Renan", "Fabio", "Tio Israel", "Tia Socorro", "Constantino", "Juliane", "Tino"])
+        senha = st.text_input("Senha de Segurança", type="password")
         
         c1, c2 = st.columns(2)
-        gols_casa = c1.number_input(f"{jogo_selecionado['time_casa']}", min_value=0, max_depth=10)
-        gols_fora = c2.number_input(f"{jogo_selecionado['time_fora']}", min_value=0, max_depth=10)
+        gols_casa = c1.number_input(f"{jogo_sel['time_casa']}", min_value=0, max_value=10)
+        gols_fora = c2.number_input(f"{jogo_sel['time_fora']}", min_value=0, max_value=10)
         
         btn = st.form_submit_button("Registrar Palpite")
         
         if btn:
-            # Aqui você registrará no banco de dados (ex: salvar em arquivo ou banco SQL)
-            st.success(f"Palpite de {nome} para {jogo_selecionado['time_casa']} {gols_casa}x{gols_fora} {jogo_selecionado['time_fora']} registrado!")
+            # Senha mestra (ou crie uma lógica individual aqui)
+            if senha == "1234":
+                salvar_palpite(nome, grupo, f"{jogo_sel['time_casa']}x{jogo_sel['time_fora']}", gols_casa, gols_fora)
+                st.success(f"Palpite registrado para {nome}!")
+            else:
+                st.error("Senha incorreta!")
     st.markdown('</div>', unsafe_allow_html=True)
