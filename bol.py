@@ -1,66 +1,65 @@
 import streamlit as st
 import pandas as pd
 
-st.set_page_config(page_title="Bolão Oficial 2026", layout="wide")
+# Design "Dark & Clean"
+st.set_page_config(page_title="World Cup 2026 Pro", layout="wide")
 
-# --- DADOS ---
-jogos_oficiais = {
-    "1": "Canadá x Marrocos (04/07)",
-    "2": "Paraguai x França (04/07)",
-    "3": "Brasil x Noruega (05/07)",
-    "4": "México x Inglaterra (05/07)"
-}
+st.markdown("""
+    <style>
+    /* Fundo degradê */
+    .stApp { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); color: white; }
+    
+    /* Cards estilo vidro */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        padding: 25px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+    
+    /* Títulos estilizados */
+    h1, h2, h3 { color: #00d2ff; text-align: center; text-transform: uppercase; letter-spacing: 2px; }
+    
+    /* Botões */
+    div.stButton > button { background: #00d2ff; color: #000; font-weight: bold; width: 100%; border-radius: 50px; border: none; }
+    </style>
+""", unsafe_allow_html=True)
 
+# Estrutura de dados
 grupos = {
     "Grupo 1": ["Davi", "Arthur", "Victor", "Kharla"],
     "Grupo 2": ["Renan", "Fabio", "Tio Israel", "Tia Socorro"],
     "Grupo 3": ["Constantino", "Juliane", "Tino"]
 }
 
-# --- FUNÇÃO DE RANKING ---
-def mostrar_ranking():
-    # Aqui você substituirá pelos dados reais do seu CSV de palpites
-    data = {
-        "Nome": ["Tino", "Davi", "Renan", "Kharla", "Fabio"],
-        "Grupo": ["Grupo 3", "Grupo 1", "Grupo 2", "Grupo 1", "Grupo 2"],
-        "Pontos": [85, 80, 75, 70, 65] # Exemplo de pontos
-    }
-    df = pd.DataFrame(data).sort_values(by="Pontos", ascending=False)
-    df.index = range(1, len(df) + 1)
-    return df
+# --- LAYOUT PRINCIPAL ---
+st.title("🏆 FIFA WORLD CUP 2026")
+st.subheader("Painel de Performance e Palpites")
 
-# --- INTERFACE ---
-col_tabela, col_palpite = st.columns([1.5, 1])
+col_left, col_right = st.columns([1, 1])
 
-with col_tabela:
-    st.subheader("🏆 Ranking Geral (Indivídual)")
-    st.dataframe(mostrar_ranking(), use_container_width=True)
+with col_left:
+    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+    st.subheader("📊 Ranking Geral")
+    # Tabela estilizada
+    df = pd.DataFrame({"Pos": ["1º", "2º", "3º"], "Nome": ["Tino", "Davi", "Renan"], "Pts": [95, 88, 82]})
+    st.table(df.set_index("Pos"))
+    st.markdown('</div>', unsafe_allow_html=True)
 
-with col_palpite:
-    st.subheader("📝 Palpites")
-    with st.form("palpite_form"):
-        # Filtro dinâmico: Ao escolher o grupo, muda os nomes
-        grupo_selecionado = st.selectbox("Escolha seu Grupo", list(grupos.keys()))
-        participante = st.selectbox("Escolha seu Nome", grupos[grupo_selecionado])
-        
-        jogo = st.selectbox("Escolha o Jogo", list(jogos_oficiais.values()))
+with col_right:
+    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+    st.subheader("⚽ Novo Palpite")
+    with st.form("palpite_pro"):
+        g = st.selectbox("Grupo", list(grupos.keys()))
+        n = st.selectbox("Participante", grupos[g])
+        j = st.selectbox("Jogo", ["Brasil x Noruega", "México x Inglaterra"])
         
         c1, c2 = st.columns(2)
-        casa = c1.number_input("Gols Casa", min_value=0)
-        fora = c2.number_input("Gols Fora", min_value=0)
+        c1.number_input("Gols Casa", 0, 10)
+        c2.number_input("Gols Fora", 0, 10)
         
-        senha = st.text_input("Senha", type="password")
-        
-        if st.form_submit_button("Enviar"):
-            # Lógica de salvar...
-            st.success(f"Palpite de {participante} ({grupo_selecionado}) registrado!")
-
-# --- TABELA DE GRUPOS (Médias) ---
-st.divider()
-st.subheader("📊 Ranking por Grupo")
-# Lógica que soma os pontos de todos do grupo e divide pela quantidade de membros
-df_grupos = pd.DataFrame({
-    "Grupo": ["Grupo 1", "Grupo 2", "Grupo 3"],
-    "Pontos Médios": [75, 70, 85]
-}).sort_values(by="Pontos Médios", ascending=False)
-st.table(df_grupos.set_index("Grupo"))
+        st.text_input("Senha de Acesso", type="password")
+        st.form_submit_button("REGISTRAR PALPITE")
+    st.markdown('</div>', unsafe_allow_html=True)
