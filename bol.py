@@ -4,52 +4,61 @@ import os
 
 st.set_page_config(page_title="Bolão Oficial 2026", layout="wide")
 
-# Estilo profissional
-st.markdown("""
-    <style>
-    .card { background: #ffffff; padding: 20px; border-radius: 15px; border: 1px solid #ddd; }
-    .stApp { background-color: #f0f2f6; }
-    </style>
-""", unsafe_allow_html=True)
-
-# Dicionário de jogos
-jogos_oficiais = {
-    "1": {"time_casa": "Canadá", "time_fora": "Marrocos", "data": "04/07"},
-    "3": {"time_casa": "Brasil", "time_fora": "Noruega", "data": "05/07"}
+# 1. Configuração de Senhas (Individual)
+# Dica: Você pode mudar essas senhas depois
+senhas_usuarios = {
+    "Davi": "1234", "Arthur": "2222", "Victor": "3333", "Kharla": "4444",
+    "Renan": "5555", "Fabio": "6666", "Tio Israel": "7777", "Tia Socorro": "8888",
+    "Constantino": "9999", "Juliane": "1010", "Tino": "1111"
 }
 
-# --- LÓGICA DE CLASSIFICAÇÃO ---
-def carregar_pontuacao():
-    if not os.path.isfile("palpites.csv"):
-        return pd.DataFrame({"Grupo": ["Grupo 1", "Grupo 2", "Grupo 3"], "Pontos": [0, 0, 0]})
-    # Aqui entraria a lógica de ler o CSV e somar pontos baseada nos resultados oficiais
-    return pd.DataFrame({"Grupo": ["Grupo 1", "Grupo 2", "Grupo 3"], "Pontos": [0, 0, 0]})
+# 2. Dados dos Grupos
+grupos = {
+    "Grupo 1": ["Davi", "Arthur", "Victor", "Kharla"],
+    "Grupo 2": ["Renan", "Fabio", "Tio Israel", "Tia Socorro"],
+    "Grupo 3": ["Constantino", "Juliane", "Tino"]
+}
 
-# --- INTERFACE ---
-col_tabela, col_palpite = st.columns([1, 2])
+# 3. Lógica de Tabela
+def mostrar_tabela():
+    data = {"Grupo": ["Grupo 1", "Grupo 2", "Grupo 3"], "Pontos": [0, 0, 0]}
+    return pd.DataFrame(data)
 
-with col_tabela:
+# Layout da Interface
+col1, col2 = st.columns([1, 2])
+
+with col1:
     st.subheader("📊 Tabela de Grupos")
-    df = carregar_pontuacao()
-    st.table(df.set_index("Grupo"))
+    st.table(mostrar_tabela().set_index("Grupo"))
 
-with col_palpite:
-    st.subheader("⚽ Registrar Palpite")
-    with st.container():
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        with st.form("form_palpite"):
-            # (Seu código de formulário permanece o mesmo...)
-            grupo = st.selectbox("Seu Grupo", ["Grupo 1", "Grupo 2", "Grupo 3"])
-            nome = st.selectbox("Seu Nome", ["Davi", "Arthur", "Victor", "Kharla", "Renan", "Fabio", "Tio Israel", "Tia Socorro", "Constantino", "Juliane", "Tino"])
-            senha = st.text_input("Senha", type="password")
-            
-            c1, c2 = st.columns(2)
-            gols_casa = c1.number_input("Gols Casa", min_value=0)
-            gols_fora = c2.number_input("Gols Fora", min_value=0)
-            
-            if st.form_submit_button("Confirmar Palpite"):
-                if senha == "1234":
-                    st.success("Palpite registrado!")
+with col2:
+    st.subheader("📝 Registrar Palpite")
+    with st.form("form_palpite"):
+        # Seleção encadeada
+        grupo_escolhido = st.selectbox("Selecione seu Grupo", list(grupos.keys()))
+        nome = st.selectbox("Seu Nome", grupos[grupo_escolhido])
+        senha = st.text_input("Digite sua senha pessoal", type="password")
+        
+        st.write("---")
+        c1, c2 = st.columns(2)
+        gols_casa = c1.number_input("Gols Casa", min_value=0, max_value=10)
+        gols_fora = c2.number_input("Gols Fora", min_value=0, max_value=10)
+        
+        btn = st.form_submit_button("Confirmar Palpite")
+        
+        if btn:
+            # Validação da Senha
+            if senha == senhas_usuarios.get(nome):
+                # Salvar em CSV (Persistência)
+                df_palpite = pd.DataFrame([[nome, grupo_escolhido, gols_casa, gols_fora]], 
+                                          columns=["Nome", "Grupo", "Gols_Casa", "Gols_Fora"])
+                
+                caminho = "palpites.csv"
+                if not os.path.isfile(caminho):
+                    df_palpite.to_csv(caminho, index=False)
                 else:
-                    st.error("Senha incorreta!")
-        st.markdown('</div>', unsafe_allow_html=True)
+                    df_palpite.to_csv(caminho, mode='a', header=False, index=False)
+                
+                st.success(f"Palpite de {nome} salvo com sucesso!")
+            else:
+                st.error("Senha incorreta para este usuário!")
