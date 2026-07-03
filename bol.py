@@ -1,52 +1,50 @@
 import streamlit as st
 import pandas as pd
-import datetime
 
-# --- CONFIGURAÇÃO VISUAL ---
-st.set_page_config(page_title="Bolão Copa 2026", layout="centered")
+# Configuração Visual
+st.set_page_config(page_title="Bolão Oficial 2026", layout="centered")
 
 st.markdown("""
     <style>
-    .main { background-color: #f8f9fa; }
-    .stApp { border: 1px solid #dee2e6; border-radius: 10px; padding: 20px; }
-    .card { background: #ffffff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
-    h1 { color: #1e3a8a; text-align: center; font-family: sans-serif; }
+    .card { background: #ffffff; padding: 20px; border-radius: 15px; border: 1px solid #ddd; margin-bottom: 20px; }
+    .stApp { background-color: #f0f2f6; }
     </style>
 """, unsafe_allow_html=True)
 
-# --- CABEÇALHO ---
-st.markdown("<h1>⚽ World Cup 2026 Bolão</h1>", unsafe_allow_html=True)
+# Dicionário de Jogos Oficiais das Oitavas de Final (2026)
+jogos_oficiais = {
+    "1": {"time_casa": "Canadá", "time_fora": "Marrocos", "data": "04/07"},
+    "2": {"time_casa": "Paraguai", "time_fora": "França", "data": "04/07"},
+    "3": {"time_casa": "Brasil", "time_fora": "Noruega", "data": "05/07"},
+    "4": {"time_casa": "México", "time_fora": "Inglaterra", "data": "05/07"}
+}
 
-# --- TABELA DE CLASSIFICAÇÃO (SIMULADA) ---
-st.subheader("📊 Classificação")
-df = pd.DataFrame({
-    "Pos": ["🥇 1º", "🥈 2º", "🥉 3º"],
-    "Grupo": ["Grupo 1", "Grupo 2", "Grupo 3"],
-    "Pontos": [0, 0, 0]
-})
-st.table(df.set_index("Pos"))
+st.title("⚽ Bolão Copa do Mundo 2026")
 
-# --- ÁREA DE PALPITES ---
+# Seleção de Jogo
+st.subheader("🗓️ Próximas Partidas")
+jogo_id = st.selectbox("Escolha o jogo para palpitar:", 
+                       options=list(jogos_oficiais.keys()), 
+                       format_func=lambda x: f"{jogos_oficiais[x]['time_casa']} vs {jogos_oficiais[x]['time_fora']} ({jogos_oficiais[x]['data']})")
+
+jogo_selecionado = jogos_oficiais[jogo_id]
+
+# Formulário de Palpite
 with st.container():
     st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.subheader("📝 Registrar Palpite")
+    st.subheader(f"Palpite: {jogo_selecionado['time_casa']} x {jogo_selecionado['time_fora']}")
     
-    with st.form("form_palpite"):
-        col1, col2 = st.columns(2)
-        grupo = col1.selectbox("Seu Grupo", ["Grupo 1", "Grupo 2", "Grupo 3"])
-        nome = col2.selectbox("Seu Nome", ["Davi", "Arthur", "Victor", "Kharla", "Renan", "Fabio", "Israel", "Socorro", "Constantino", "Juliane", "Tino"])
+    with st.form("palpite_form"):
+        grupo = st.selectbox("Seu Grupo", ["Grupo 1", "Grupo 2", "Grupo 3"])
+        nome = st.selectbox("Seu Nome", ["Davi", "Arthur", "Victor", "Kharla", "Renan", "Fabio", "Tio Israel", "Tia Socorro", "Constantino", "Juliane", "Tino"])
         
-        senha = st.text_input("Senha de Segurança", type="password")
+        c1, c2 = st.columns(2)
+        gols_casa = c1.number_input(f"{jogo_selecionado['time_casa']}", min_value=0, max_depth=10)
+        gols_fora = c2.number_input(f"{jogo_selecionado['time_fora']}", min_value=0, max_depth=10)
         
-        col_g1, col_g2 = st.columns(2)
-        gols_casa = col_g1.number_input("Brasil", min_value=0, step=1)
-        gols_fora = col_g2.number_input("França", min_value=0, step=1)
-        
-        btn = st.form_submit_button("Confirmar Palpite")
+        btn = st.form_submit_button("Registrar Palpite")
         
         if btn:
-            if senha == "1234": # Configure sua senha secreta aqui
-                st.success(f"Palpite de {nome} registrado com sucesso!")
-            else:
-                st.error("Senha incorreta!")
+            # Aqui você registrará no banco de dados (ex: salvar em arquivo ou banco SQL)
+            st.success(f"Palpite de {nome} para {jogo_selecionado['time_casa']} {gols_casa}x{gols_fora} {jogo_selecionado['time_fora']} registrado!")
     st.markdown('</div>', unsafe_allow_html=True)
